@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="pure.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="ui.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div id="layout">
+        <div id="main">
+            <div class="header">
+                <div>
+                    <h1 class="jl">WELCOME</h1>
+                    <p>Please refer to the online <a id="guide" href="http://www.arduino.org/">Starter Guide</a> on Arduino.org</p>
+                </div>
+            </div>
+            <div class="content" style="max-width: none !important;">
+                <div class="pure-g">
+                    <div class="pure-u-1 pure-u-md-1">
+                        <div class="card">
+                            <div id="wifi-spinner" class="spinner spinner-small" hidden=""></div>
+                            <table id="wifi-table" class="pure-table pure-table-horizontal">
+                                <tbody>
+                                    <tr>
+                                        <td class="td_header" colspan="3">
+                                            <h1>Summary</h1> </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td_key">Hostname</td>
+                                        <td id="wifi-hostname"></td>
+                                        <td>
+                                            <button id="change-hostname-button" class="pure-button button-primary">CHANGE</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td_key">Network SSID</td>
+                                        <td id="wifi-ssid"></td>
+                                        <td>
+                                            <button id="change-network-button" class="pure-button button-primary" href="wifi.html">CHANGE</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td_key">Wifi status</td>
+                                        <td id="wifi-status"></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td_key">Wifi address</td>
+                                        <td id="wifi-ip"></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td_key">WiFi mode</td>
+                                        <td id="wifi-mode"></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td_key">WiFi channel</td>
+                                        <td id="wifi-chan"></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td_key">Flash size</td>
+                                        <td>
+                                            <div class=" popup-target"> <span class="system-size"></span> </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="td_key">Free heap</td>
+                                        <td>
+                                            <div class=" popup-target"> <span class="system-heap"></span> </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        onLoad(function () {
+            makeAjaxInput("system", "description");
+            makeAjaxInput("system", "name");
+            getBoardInfo();
+            getWifiInfo();
+            getSystemInfo();
+            bnd($("#change-hostname-button"), "click", changeToWifiPage);
+            bnd($("#change-network-button"), "click", changeToWifiPage);
+        });
+    </script>
+</body>
+
+</html>
