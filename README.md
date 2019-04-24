@@ -1,8 +1,12 @@
-# WiFi Link - ESP8266 firmware for Arduino
+# Miro ESP8266 firmware (for Arduino IDE).
 
-This is a fork of Arduino.org WiFi Link firmware. The goal of this fork is make improvements and provide documentation.
+This is a fork of Arduino.org WiFi Link firmware by jandrassy (https://github.com/jandrassy/arduino-firmware-wifilink). The goal of this fork is make special improvements for Miro robot. Its also clean some unused code for Miro robot.
 
-The WiFi Link firmware is an ESP8266 arduino sketch developed by Arduino.org in Arduino IDE using Arduino esp8266 core. It was developed for the Arduino Star Otto, Arduino Primo and [Uno WiFi Developer Edition](https://github.com/jandrassy/UnoWiFiDevEdSerial1).
+The main improvement is integrated telnet bridge on port 23, which allows to debug arduino part over WiFi. 
+
+-------------------------------------
+
+The WiFi Link firmware is an ESP8266 arduino sketch developed by Arduino.org in Arduino IDE using Arduino esp8266 core. It was developed for the Arduino Star Otto, Arduino Primo and [Uno WiFi Developer Edition] (https://github.com/jandrassy/UnoWiFiDevEdSerial1).
 
 With changes in this fork, it can be used with any esp8266 in combination with an Arduino MCU.
 
