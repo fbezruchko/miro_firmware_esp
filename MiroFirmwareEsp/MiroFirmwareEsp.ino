@@ -5,7 +5,6 @@
 #include "Configuration.h"
 #include <algorithm>
 
-#include "Arduino.h"
 #include "utility/wifi_utils.h"
 #include "config.h"
 

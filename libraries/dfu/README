@@ -1,0 +1,43 @@
+libdfu: library for implementing Direct Firmware Update for several target
+processors under several host environments.
+
+Design should be modular, so that new programming hosts and targets can
+be added quite easily.
+
+Two hosts (linux pc and esp8266) and two targets (stm32-dfu and stk500 v1)
+are currently supported.
+
+Have a look in samples/ for some sample programs.
+
+To build for linux pc:
+
+make HOST=linux
+
+To build for esp8266:
+
+make
+
+To enable debug prints build with DEBUG=y:
+
+make DEBUG=y
+
+Before building, setup a file named local_config.mk in the main sources
+directory assigning values to the following make variables:
+
+SDK_BASE
+SAMPLES_SSID
+SAMPLES_PASSWORD
+
+SDK_BASE is the path of the esp8266 sdk you rely on (I'm using
+esp_iot_sdk_v1.5.2).
+
+SAMPLES_SSID and SAMPLE_PASSWORD are respectively the SSID and the password
+of the wifi network the esp8266 shall connect to (these are only used by
+sample programs).
+
+
+This is currently work in progress and completely experimental.
+
+Have fun
+Davide
+
