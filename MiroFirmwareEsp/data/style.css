@@ -200,7 +200,7 @@ div.tt {
     /*font: normal 800 1.5em TyponineSansMonoMedium;*/
     position: relative;
     bottom: 19px;
-    color: #007481;
+    color: #ff0000;
     margin-left: 11%;
     text-transform: uppercase;
     text-align: left;
@@ -215,7 +215,7 @@ form button {
     margin-top: .5em
 }
 .button-primary {
-    background: #007481
+    background: #ff0000
 }
 .button-selected {
     background-color: #fc6
@@ -332,7 +332,7 @@ pre.console a {
     left: 0;
     bottom: 0;
     z-index: 1000;
-    background: #007481;
+    background: #ff0000;
     overflow: auto;
     -webkit-overflow-scrolling: touch
 }
@@ -366,7 +366,7 @@ pre.console a {
     line-height: 4vh;
     padding-left: 2.5vh;
     text-transform: uppercase;
-    border-bottom: 1px solid #00979c
+    border-bottom: 1px solid #ff3232
 }
 .menu-link {
     position: fixed;
@@ -443,14 +443,14 @@ pre.console a {
     text-align: center
 }
 #warning {
-    background-color: #933;
+    background-color: #000;
     color: #fcc;
     padding: .1em .4em;
     position: fixed;
     margin-left: 25%
 }
 #notification {
-    background-color: #693;
+    background-color: #000;
     color: #cfc;
     padding: .1em .4em;
     position: fixed;
@@ -500,7 +500,7 @@ pre.console a {
 #version {
     font-size: 10pt;
     bottom: 0;
-    color: #00979c;
+    color: #ff3232;
     font-weight: normal !important;
     text-align: center;
     padding: 0 7%;
@@ -510,10 +510,10 @@ pre.console a {
     margin-top: 80%
 }
 hr {
-    border-color: #00979c
+    border-color: #ff3232
 }
 p.sub-menu-header {
-    color: #00979c !important;
+    color: #ff3232 !important;
     /*font-family: TyponineSansMonoText;*/
     font-size: 9pt;
     padding-left: 4%;
@@ -525,7 +525,7 @@ p.sub-menu-header {
 .pure-menu-link:hover,
 li.pure-menu-item.pure-menu-selected,
 li.pure-menu-item:hover {
-    background-color: #00979c !important
+    background-color: #ff3232 !important
 }
 td.td_key {
     color: #797979 !important
@@ -618,7 +618,7 @@ td.td_header {
     padding-left: 0
 }
 .td_header h1 {
-    color: #007481;
+    color: #ff0000;
     /*font-family: TyponineSansMonoMedium !important;*/
     font-size: 13pt !important;
     padding-left: .7em

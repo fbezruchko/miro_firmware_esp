@@ -1,10 +1,13 @@
-#include "CommLgc.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 #include "Configuration.h"
 #include <algorithm>
+
+#include "Arduino.h"
+#include "utility/wifi_utils.h"
+#include "config.h"
 
 #include <FS.h>
 #include <ArduinoJson.h>
@@ -37,7 +40,12 @@ void setup() {
   ArduinoOTA.begin();
   //OTA ESP
   initMDNS();
-  CommunicationLogic.begin();
+
+  pinMode(3, INPUT_PULLUP);
+  Serial.begin(BAUDRATE_COMMUNICATION);
+  Serial.setRxBufferSize(RXBUFFERSIZE);
+  while(!Serial);
+
   SPIFFS.begin();
   initHostname();
   setWiFiConfig();
@@ -51,7 +59,6 @@ void setup() {
 void loop() {
 
   ArduinoOTA.handle();
-  //CommunicationLogic.handle();
   handleWebServer();
   wifiLed();
 

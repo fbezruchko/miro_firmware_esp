@@ -1,17 +1,17 @@
 #include "Configuration.h"
 
 
-bool Configuration::setParam(String param, String value){
-  if(value.length()>1 && param.length()>1){
+bool Configuration::setParam(String param, String value) {
+  if (value.length() > 1 && param.length() > 1) {
     String paramConfig = "";
     DynamicJsonBuffer jsonBuffer;
-    File configFile = SPIFFS.open(CONFIGFILENAME,"r");
-    if(configFile){     //read Config file
-      while(configFile.available()){
+    File configFile = SPIFFS.open(CONFIGFILENAME, "r");
+    if (configFile) {   //read Config file
+      while (configFile.available()) {
         paramConfig = paramConfig + char(configFile.read());
       }
     }
-    else{
+    else {
       paramConfig = JSONEMPTY;
     }
     configFile.close();
@@ -23,13 +23,13 @@ bool Configuration::setParam(String param, String value){
     configFile.close();
     return true;
   }
-  else{
+  else {
     return false;
   }
 }
 
-String Configuration::getParam(String param){
-  if(param.length()>1){
+String Configuration::getParam(String param) {
+  if (param.length() > 1) {
     File configFile = SPIFFS.open(CONFIGFILENAME, "r");
     if (!configFile) {
       return EMPTY;
@@ -47,7 +47,7 @@ String Configuration::getParam(String param){
     configFile.close();
     return json[param];
   }
-  else{
+  else {
     return EMPTY;
   }
 }

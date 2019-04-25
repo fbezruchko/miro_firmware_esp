@@ -606,7 +606,7 @@ th {
 .pure-button-selected,
 a.pure-button-primary,
 a.pure-button-selected {
-    background-color: #0078e7;
+    background-color: #646464;
     color: #fff
 }
 .pure-form input[type="text"],
@@ -665,17 +665,17 @@ a.pure-button-selected {
 .pure-form select:focus,
 .pure-form textarea:focus {
     outline: 0;
-    border-color: #129fea
+    border-color: #969696
 }
 .pure-form input:not([type]):focus {
     outline: 0;
-    border-color: #129fea
+    border-color: #969696
 }
 .pure-form input[type="file"]:focus,
 .pure-form input[type="radio"]:focus,
 .pure-form input[type="checkbox"]:focus {
-    outline: thin solid #129fea;
-    outline: 1px auto #129fea
+    outline: thin solid #969696;
+    outline: 1px auto #969696
 }
 .pure-form .pure-checkbox,
 .pure-form .pure-radio {
@@ -1058,8 +1058,8 @@ a.pure-button-selected {
 .pure-menu-active>.pure-menu-link,
 .pure-menu-link:hover,
 .pure-menu-link:focus {
-    background-color: #00979c;
-    color: #00999a
+    background-color: #ff3232;
+    color: #ff3034
 }
 .pure-menu-selected .pure-menu-link,
 .pure-menu-selected .pure-menu-link:visited {
@@ -1323,7 +1323,7 @@ align-content:flex-start
 .pure-button-selected,
 a.pure-button-primary,
 a.pure-button-selected {
-    background-color: #0078e7;
+    background-color: #646464;
     color: #fff
 }
 .pure-form input[type="text"],
@@ -1382,17 +1382,17 @@ a.pure-button-selected {
 .pure-form select:focus,
 .pure-form textarea:focus {
     outline: 0;
-    border-color: #129fea
+    border-color: #969696
 }
 .pure-form input:not([type]):focus {
     outline: 0;
-    border-color: #129fea
+    border-color: #969696
 }
 .pure-form input[type="file"]:focus,
 .pure-form input[type="radio"]:focus,
 .pure-form input[type="checkbox"]:focus {
-    outline: thin solid #129fea;
-    outline: 1px auto #129fea
+    outline: thin solid #969696;
+    outline: 1px auto #969696
 }
 .pure-form .pure-checkbox,
 .pure-form .pure-radio {
@@ -1775,8 +1775,8 @@ a.pure-button-selected {
 .pure-menu-active>.pure-menu-link,
 .pure-menu-link:hover,
 .pure-menu-link:focus {
-    background-color: #00979c;
-    color: #00999a
+    background-color: #ff3232;
+    color: #ff3034
 }
 .pure-menu-selected .pure-menu-link,
 .pure-menu-selected .pure-menu-link:visited {
