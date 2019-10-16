@@ -29,10 +29,7 @@ ESP8266WebServer server(80);    //server UI
 
 void setup() {
 
-#if defined(MCU_OTA)
   _setup_dfu();
-#endif
-
   pinMode(WIFI_LED, OUTPUT);      //initialize wifi LED
   digitalWrite(WIFI_LED, LOW);
 
@@ -43,7 +40,7 @@ void setup() {
   pinMode(3, INPUT_PULLUP);
   Serial.begin(BAUDRATE_COMMUNICATION);
   Serial.setRxBufferSize(RXBUFFERSIZE);
-  while(!Serial);
+  while (!Serial);
 
   SPIFFS.begin();
   initHostname();
@@ -56,18 +53,13 @@ void setup() {
 }
 
 void loop() {
-
   ArduinoOTA.handle();
   handleWebServer();
   wifiLed();
-
-#if defined(MCU_OTA)
   _handle_Mcu_OTA();
-#endif
 
   telnetCheckClients();
   handleTelnetServer();
-
 }
 
 void initMDNS() {
@@ -89,7 +81,6 @@ void initHostname() {
 }
 
 void wifiLed() {
-
   unsigned long currentMillis = millis();
   int wifi_status = WiFi.status();
   if ((WiFi.getMode() == 1 || WiFi.getMode() == 3) && wifi_status == WL_CONNECTED) {    //wifi LED in STA MODE
@@ -120,14 +111,12 @@ void wifiLed() {
       digitalWrite(WIFI_LED, ledState);
     }
   }
-
 }
 
 void setWiFiConfig() {
-
   //WiFi mode is remembered by the esp sdk
-  if (WiFi.getMode() != WIFI_STA) {
-
+  if (WiFi.getMode() != WIFI_STA)
+  {
     //set default AP
     String mac = WiFi.macAddress();
     String apSSID = String(SSIDNAME) + "-" + String(mac[9]) + String(mac[10]) + String(mac[12]) + String(mac[13]) + String(mac[15]) + String(mac[16]);
@@ -138,9 +127,7 @@ void setWiFiConfig() {
     WiFi.softAPConfig(default_IP, default_IP, IPAddress(255, 255, 255, 0));   //set default ip for AP mode
   }
   //set STA mode
-#if defined(ESP_CH_SPI)
-  ETS_SPI_INTR_DISABLE();
-#endif
+  else
   { // first static config if configured
     String staticIP = Config.getParam("staticIP").c_str();
     if (staticIP != "" && staticIP != "0.0.0.0") {
@@ -158,9 +145,6 @@ void setWiFiConfig() {
     WiFi.mode(WIFI_AP_STA); // STA must be active for library connects
     setWiFiConfig(); // setup AP
   }
-#if defined(ESP_CH_SPI)
-  ETS_SPI_INTR_ENABLE();
-#endif
 }
 
 void telnetCheckClients()

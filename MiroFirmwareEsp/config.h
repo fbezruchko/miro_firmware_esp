@@ -14,7 +14,6 @@
 #define GENERIC_ESP8266
 
 #define MCU_OTA
-#define OTA_RST_PIN 0
 
 /*
  * Define board hostname

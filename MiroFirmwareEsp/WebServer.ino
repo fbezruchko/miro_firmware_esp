@@ -53,48 +53,50 @@ String toStringIp(IPAddress ip) {
 
 String toStringWifiMode(int mod) {
   String mode;
-  switch (mod) {
-    case 0:
-      mode = "OFF";
-      break;
-    case 1:
-      mode = "STA";
-      break;
-    case 2:
-      mode = "AP";
-      break;
-    case 3:
-      mode = "AP+STA";
-      break;
-    case 4:
-      mode = "----";
-      break;
-    default:
-      break;
-  }
+//  switch (mod) {
+//    case 0:
+//      mode = "OFF";
+//      break;
+//    case 1:
+//      mode = "STA";
+//      break;
+//    case 2:
+//      mode = "AP";
+//      break;
+//    case 3:
+//      mode = "AP+STA";
+//      break;
+//    case 4:
+//      mode = "----";
+//      break;
+//    default:
+//      break;
+//  }
+  mode = "AP+STA";
   return mode;
 }
 
 WiFiMode intToWifiMode(int mod) {
   WiFiMode mode;
-  switch (mod) {
-    case 0:
-      mode = WIFI_OFF;
-      break;
-    case 1:
-      mode = WIFI_STA;
-      break;
-    case 2:
-      mode = WIFI_AP;
-      break;
-    case 3:
-      mode = WIFI_AP_STA;
-      break;
-    case 4:
-      break;
-    default:
-      break;
-  }
+//  switch (mod) {
+//    case 0:
+//      mode = WIFI_OFF;
+//      break;
+//    case 1:
+//      mode = WIFI_STA;
+//      break;
+//    case 2:
+//      mode = WIFI_AP;
+//      break;
+//    case 3:
+//      mode = WIFI_AP_STA;
+//      break;
+//    case 4:
+//      break;
+//    default:
+//      break;
+//  }
+  mode = WIFI_AP_STA;
   return mode;
 }
 
