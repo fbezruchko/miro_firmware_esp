@@ -3,6 +3,7 @@
 This is a fork of Arduino.org WiFi Link firmware by jandrassy (https://github.com/jandrassy/arduino-firmware-wifilink). The goal of this fork is make special improvements for Miro robot. Its also clean some unused code for Miro robot.
 
 The main improvement is integrated telnet bridge on port 23, which allows to debug arduino part over WiFi. But there is no OTA firmware upload to ESP8266.
+Also, by default, GPIO pin for Arduino Reset defined to GPIO2 (on ESP8266). 
 
 -------------------------------------
 
@@ -97,7 +98,7 @@ For ATmega boards with at least 64 kB flash and for some ARM boards (SAMD, nRF52
 
 The WiFi Link firmware build with `#define MCU_OTA` (config.h) supports ATmega 328p sketch OTA upload. To build from the source codes with `MCU_OTA` you need a library called dfu.
 
-For OTA with esp8266 module/board/shield, the reset pin of the ATmega must be [connected](https://github.com/jandrassy/arduino-firmware-wifilink/wiki/Test-Setup) to an ESP GPIO pin. Default in dfu library is GPIO5. You can change it to GPIO0, as it is on pinout header on most ESP modules. Star Otto and Uno WiFi have special setting hardcoded.
+For OTA with esp8266 module/board/shield, the reset pin of the ATmega must be [connected](https://github.com/jandrassy/arduino-firmware-wifilink/wiki/Test-Setup) to an ESP GPIO pin. Default in dfu library is <GPIO5 - redefined to GPIO2>. Star Otto and Uno WiFi have special setting hardcoded.
 
 Only settings for the ATmega328p with Uno bootloader (Optiboot) exist in the dfu library. 
 
