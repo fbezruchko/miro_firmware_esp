@@ -18,13 +18,15 @@ long previousMillis = 0;        // will store last time LED was updated
 long ap_interval = 50;         //blink interval in ap mode
 IPAddress default_IP(192, 168, 240, 1); //defaul IP Address
 String HOSTNAME = DEF_HOSTNAME;
-String staticIP_param ;
+String staticIP_param;
 String netmask_param;
 String gateway_param;
 String dhcp = "on";
 
+#define MAX_TELNET_CLIENTS 1
+
 WiFiServer telnet(23);
-WiFiClient telnetClient;
+WiFiClient telnetClient[MAX_TELNET_CLIENTS];
 ESP8266WebServer server(80);    //server UI
 
 void setup() {
@@ -38,6 +40,7 @@ void setup() {
   initMDNS();
 
   pinMode(3, INPUT_PULLUP);
+  //pinMode(3, INPUT);
   Serial.begin(BAUDRATE_COMMUNICATION);
   Serial.setRxBufferSize(RXBUFFERSIZE);
   while (!Serial);
@@ -120,10 +123,11 @@ void setWiFiConfig() {
     //set default AP
     String mac = WiFi.macAddress();
     String apSSID = String(SSIDNAME) + "-" + String(mac[9]) + String(mac[10]) + String(mac[12]) + String(mac[13]) + String(mac[15]) + String(mac[16]);
-    char softApssid[18];
-    apSSID.toCharArray(softApssid, apSSID.length() + 1);
-    //delay(1000);
-    WiFi.softAP(softApssid);
+    //char softApssid[18];
+    //apSSID.toCharArray(softApssid, apSSID.length() + 1);
+    ////delay(1000);
+    //WiFi.softAP(softApssid);
+    WiFi.softAP(apSSID.c_str());
     WiFi.softAPConfig(default_IP, default_IP, IPAddress(255, 255, 255, 0));   //set default ip for AP mode
   }
   //set STA mode
@@ -150,10 +154,44 @@ void setWiFiConfig() {
 void telnetCheckClients()
 {
   //check if there are any new clients
+  static int CountClients = 0;
   if (telnet.hasClient()) {
-    //find free/disconnected spot
-    if (!telnetClient) { // equivalent to !serverClients[i].connected()
-      telnetClient = telnet.available();
+    int i;
+    for (i = 0; i < MAX_TELNET_CLIENTS; i++)
+      if (!telnetClient[i]) { // equivalent to !serverClients[i].connected()
+        telnetClient[i] = telnet.available();
+        telnetClient[i].println("Enter 'help' for a list of built-in commands.");
+        telnetClient[i].println();
+        telnetClient[i].println(" .-.      .-..-..------. .-----.");
+        telnetClient[i].println(" |  \\    /  || ||  __  | |  _  |");
+        telnetClient[i].println(" |   \\  /   || || |  | | | | | |");
+        telnetClient[i].println(" | |\\ \\/ /| || || |__| . | | | |");
+        telnetClient[i].println(" | | \\__/ | || || |  \\ \\ | |_| |");
+        telnetClient[i].println(" | |      |_||_||_|   \\_\\|_____|");
+        telnetClient[i].println(" |_| OPEN SOURCE ROBOT PLATFORM");
+        telnetClient[i].println(" -----------------------------------------------------");
+        telnetClient[i].println(" KHABAROVSK (RUSSIA): 48.476234, 135.089290");
+        telnetClient[i].println(" -----------------------------------------------------");
+        telnetClient[i].println(" * Amur river");
+        telnetClient[i].println(" * Himalayan bear");
+        telnetClient[i].println(" * Khabarovsk (Alekseevsky) bridge");
+        telnetClient[i].println(" * Chum (salmon fish)");
+        telnetClient[i].println(" * Pacific National University");
+        telnetClient[i].println(" -----------------------------------------------------");
+        telnetClient[i].println();
+        telnetClient[i].print("Local IP: ");
+        telnetClient[i].println(WiFi.localIP());
+        telnetClient[i].println();
+        Serial.println();
+        break;
+      }
+    //no free/disconnected spot so reject
+    if (i == MAX_TELNET_CLIENTS) {
+      telnet.available().println("Server is busy!");
+      // hints: server.available() is a WiFiClient with short-term scope
+      // when out of scope, a WiFiClient will
+      // - flush() - all data will be sent
+      // - stop() - automatically too
     }
   }
 }
@@ -161,34 +199,46 @@ void telnetCheckClients()
 void handleTelnetServer()
 {
 #if 1
+
   // Incredibly, this code is faster than the bufferred one below - #4620 is needed
   // loopback/3000000baud average 348KB/s
-  while (telnetClient.available() && Serial.availableForWrite() > 0) {
-    // working char by char is not very efficient
-    Serial.write(telnetClient.read());
+  for (int i = 0; i < MAX_TELNET_CLIENTS; i++)
+  {
+    while (telnetClient[i].available() && Serial.availableForWrite() > 0) {
+      // working char by char is not very efficient
+      Serial.write(telnetClient[i].read());
+    }
   }
-#else
-  // loopback/3000000baud average: 312KB/s
-  while (telnetClient.available() && Serial.availableForWrite() > 0) {
-    size_t maxToSerial = std::min(telnetClient.available(), Serial.availableForWrite());
-    maxToSerial = std::min(maxToSerial, (size_t)STACK_PROTECTOR);
-    uint8_t buf[maxToSerial];
-    size_t tcp_got = telnetClient.read(buf, maxToSerial);
-    size_t serial_sent = Serial.write(buf, tcp_got);
-  }
-#endif
 
+#else
+
+  // loopback/3000000baud average: 312KB/s
+  for (int i = 0; i < MAX_TELNET_CLIENTS; i++)
+  {
+    while (telnetClient[i].available() && Serial.availableForWrite() > 0) {
+      size_t maxToSerial = std::min(telnetClient.available(), Serial.availableForWrite());
+      maxToSerial = std::min(maxToSerial, (size_t)STACK_PROTECTOR);
+      uint8_t buf[maxToSerial];
+      size_t tcp_got = telnetClient[i].read(buf, maxToSerial);
+      size_t serial_sent = Serial.write(buf, tcp_got);
+    }
+  }
+
+#endif
 
   // determine maximum output size "fair TCP use"
   // client.availableForWrite() returns 0 when !client.connected()
   size_t maxToTcp = 0;
-  if (telnetClient) {
-    size_t afw = telnetClient.availableForWrite();
-    if (afw) {
-      if (!maxToTcp) {
-        maxToTcp = afw;
-      } else {
-        maxToTcp = std::min(maxToTcp, afw);
+  for (int i = 0; i < MAX_TELNET_CLIENTS; i++)
+  {
+    if (telnetClient[i]) {
+      size_t afw = telnetClient[i].availableForWrite();
+      if (afw) {
+        if (!maxToTcp) {
+          maxToTcp = afw;
+        } else {
+          maxToTcp = std::min(maxToTcp, afw);
+        }
       }
     }
   }
@@ -197,20 +247,19 @@ void handleTelnetServer()
   size_t len = std::min((size_t)Serial.available(), maxToTcp);
   //size_t len = (size_t)Serial.available();
   len = std::min(len, (size_t)STACK_PROTECTOR);
-  if (len) {
+  if (len)
+  {
     uint8_t sbuf[len];
     size_t serial_got = Serial.readBytes(sbuf, len);
     // push UART data to connected telnet client
-    // if client.availableForWrite() was 0 (congested)
-    // and increased since then,
-    // ensure write space is sufficient:
-    //telnetClient.print("Recieved from AVR: ");
-    //telnetClient.print(serial_got);
-    //telnetClient.println();
-    //size_t tcp_sent = telnetClient.write(sbuf, serial_got);
-    if (telnetClient.availableForWrite() >= serial_got) {
-      size_t tcp_sent = telnetClient.write(sbuf, serial_got);
+    for (int i = 0; i < MAX_TELNET_CLIENTS; i++)
+    {
+      // if client.availableForWrite() was 0 (congested)
+      // and increased since then,
+      // ensure write space is sufficient:
+      if (telnetClient[i].availableForWrite() >= serial_got) {
+        size_t tcp_sent = telnetClient[i].write(sbuf, serial_got);
+      }
     }
   }
-  //delay(1);
 }
