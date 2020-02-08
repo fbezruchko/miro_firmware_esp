@@ -24,6 +24,9 @@ String gateway_param;
 String dhcp = "on";
 
 #define MAX_TELNET_CLIENTS 1
+char telnet_login[] = "miro";
+char telnet_pass[] = "robot";
+bool telnet_active[MAX_TELNET_CLIENTS];
 
 WiFiServer telnet(23);
 WiFiClient telnetClient[MAX_TELNET_CLIENTS];
@@ -158,8 +161,60 @@ void telnetCheckClients()
   if (telnet.hasClient()) {
     int i;
     for (i = 0; i < MAX_TELNET_CLIENTS; i++)
-      if (!telnetClient[i]) { // equivalent to !serverClients[i].connected()
+      if (!telnetClient[i])
+      {
         telnetClient[i] = telnet.available();
+        char loginString[32];
+        char passString[32];
+        char inChar = 0;
+        unsigned char login_buffer_pos = 0;
+        unsigned char pass_buffer_pos = 0;
+        telnetClient[i].print("login: ");
+        telnetClient[i].flush();
+        while (telnetClient[i].available()) telnetClient[i].read();
+        while ( (telnetClient[i].connected()) && (inChar != '\n') && (login_buffer_pos < 32) )
+        {
+          if (telnetClient[i].available())
+          {
+            inChar = telnetClient[i].read();
+            loginString[login_buffer_pos] = inChar;
+            login_buffer_pos++;
+          }
+        }
+        loginString[login_buffer_pos - 2] = 0;
+
+        telnetClient[i].print("password: ");
+        telnetClient[i].flush();
+        while (telnetClient[i].available()) telnetClient[i].read();
+        inChar = 0;
+        while ( (telnetClient[i].connected()) && (inChar != '\n') && (pass_buffer_pos < 32) )
+        {
+          if (telnetClient[i].available())
+          {
+            inChar = telnetClient[i].read();
+            passString[pass_buffer_pos] = inChar;
+            pass_buffer_pos++;
+          }
+        }
+        passString[pass_buffer_pos - 2] = 0;
+
+        if ( strcmp(loginString, telnet_login) || strcmp(passString, telnet_pass))
+        {
+          telnetClient[i].println("Login or password incorrect");
+          telnetClient[i].println("Connection terminating...");
+          delay(1000);
+          telnetClient[i].flush();
+          telnetClient[i].stop();
+          return;
+        }
+        else
+        {
+          telnet_active[i] = true;
+          //telnetClient[i].print('\r');
+          //telnetClient[i].print('\r');
+          //telnetClient[i].print('\r');
+        }
+
         telnetClient[i].println("Enter 'help' for a list of built-in commands.");
         telnetClient[i].println();
         telnetClient[i].println(" .-.      .-..-..------. .-----.");
@@ -204,9 +259,12 @@ void handleTelnetServer()
   // loopback/3000000baud average 348KB/s
   for (int i = 0; i < MAX_TELNET_CLIENTS; i++)
   {
-    while (telnetClient[i].available() && Serial.availableForWrite() > 0) {
-      // working char by char is not very efficient
-      Serial.write(telnetClient[i].read());
+    if (telnet_active[i])
+    {
+      while (telnetClient[i].available() && Serial.availableForWrite() > 0) {
+        // working char by char is not very efficient
+        Serial.write(telnetClient[i].read());
+      }
     }
   }
 
@@ -231,13 +289,16 @@ void handleTelnetServer()
   size_t maxToTcp = 0;
   for (int i = 0; i < MAX_TELNET_CLIENTS; i++)
   {
-    if (telnetClient[i]) {
-      size_t afw = telnetClient[i].availableForWrite();
-      if (afw) {
-        if (!maxToTcp) {
-          maxToTcp = afw;
-        } else {
-          maxToTcp = std::min(maxToTcp, afw);
+    if (telnet_active[i])
+    {
+      if (telnetClient[i]) {
+        size_t afw = telnetClient[i].availableForWrite();
+        if (afw) {
+          if (!maxToTcp) {
+            maxToTcp = afw;
+          } else {
+            maxToTcp = std::min(maxToTcp, afw);
+          }
         }
       }
     }
@@ -254,11 +315,14 @@ void handleTelnetServer()
     // push UART data to connected telnet client
     for (int i = 0; i < MAX_TELNET_CLIENTS; i++)
     {
-      // if client.availableForWrite() was 0 (congested)
-      // and increased since then,
-      // ensure write space is sufficient:
-      if (telnetClient[i].availableForWrite() >= serial_got) {
-        size_t tcp_sent = telnetClient[i].write(sbuf, serial_got);
+      if (telnet_active[i])
+      {
+        // if client.availableForWrite() was 0 (congested)
+        // and increased since then,
+        // ensure write space is sufficient:
+        if (telnetClient[i].availableForWrite() >= serial_got) {
+          size_t tcp_sent = telnetClient[i].write(sbuf, serial_got);
+        }
       }
     }
   }
