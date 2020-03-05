@@ -2,6 +2,7 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <EEPROM.h>
 #include "Configuration.h"
 #include <algorithm>
 
@@ -31,6 +32,26 @@ bool telnet_active[MAX_TELNET_CLIENTS];
 WiFiServer telnet(23);
 WiFiClient telnetClient[MAX_TELNET_CLIENTS];
 ESP8266WebServer server(80);    //server UI
+
+void read_EEPROM_PWD(char *pass)
+{
+  unsigned int addr = EEPROM_PWD_ADDRESS;
+  unsigned char i, str_len = 0;
+  str_len = EEPROM.read(addr);
+  addr++;
+  for (i = 0; i < str_len; i++) *(pass + i) = EEPROM.read(addr+i);
+  *(pass + i) = '\0';
+}
+
+void write_EEPROM_PWD(char *pass)
+{
+  unsigned int addr = EEPROM_PWD_ADDRESS;
+  unsigned char i, str_len;
+  str_len = (unsigned char)strlen(pass);
+  EEPROM.write(addr, str_len);
+  addr++;
+  for (i = 0; i < str_len; i++) EEPROM.write(addr+i, *(pass + i));
+}
 
 void setup() {
 

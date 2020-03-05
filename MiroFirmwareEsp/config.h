@@ -36,3 +36,5 @@
 #define STACK_PROTECTOR  512 // bytes
 #define WIFI_LED 16
 #define SSIDNAME "MIRO"
+
+#define EEPROM_PWD_ADDRESS 0
