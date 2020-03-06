@@ -31,7 +31,7 @@
 #define BOARDMODEL "MIRO_ESP8266"
 #define ARDUINO_BOARD "miro"   //mdns
 #define ESP_CH_UART
-#define BAUDRATE_COMMUNICATION 115200 // to start with SoftwareSerial, set 115200 for good connection
+#define BAUDRATE_COMMUNICATION 9600 // to start with SoftwareSerial, set 115200 for good connection
 #define RXBUFFERSIZE 1024
 #define STACK_PROTECTOR  512 // bytes
 #define WIFI_LED 16

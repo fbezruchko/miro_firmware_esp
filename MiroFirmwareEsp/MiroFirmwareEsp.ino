@@ -13,6 +13,7 @@
 #include <ArduinoJson.h>
 #include <Hash.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPUpdateServer.h>
 
 int ledState = LOW;             // used to set the LED state
 long previousMillis = 0;        // will store last time LED was updated
@@ -32,6 +33,7 @@ bool telnet_active[MAX_TELNET_CLIENTS];
 WiFiServer telnet(23);
 WiFiClient telnetClient[MAX_TELNET_CLIENTS];
 ESP8266WebServer server(80);    //server UI
+ESP8266HTTPUpdateServer httpUpdater;
 
 void read_EEPROM_PWD(char *pass)
 {
@@ -72,6 +74,8 @@ void setup() {
   SPIFFS.begin();
   initHostname();
   setWiFiConfig();
+
+  httpUpdater.setup(&server);
   initWebServer();                 //UI begin
 
   //start telnet server
