@@ -66,6 +66,8 @@ void setup() {
   initMDNS();
 
   pinMode(3, INPUT_PULLUP);
+  pinMode(15, OUTPUT);
+  digitalWrite(15, HIGH);
   //pinMode(3, INPUT);
   Serial.begin(BAUDRATE_COMMUNICATION);
   Serial.setRxBufferSize(RXBUFFERSIZE);
@@ -197,7 +199,7 @@ void telnetCheckClients()
         telnetClient[i].print("login: ");
         telnetClient[i].flush();
         while (telnetClient[i].available()) telnetClient[i].read();
-        while ( (telnetClient[i].connected()) && (inChar != '\n') && (login_buffer_pos < 32) )
+        while ( (telnetClient[i].connected()) && (inChar != '\n') && (inChar != '\r') && (login_buffer_pos < 32) )
         {
           if (telnetClient[i].available())
           {
@@ -206,13 +208,15 @@ void telnetCheckClients()
             login_buffer_pos++;
           }
         }
-        loginString[login_buffer_pos - 2] = 0;
-
+        loginString[login_buffer_pos-1] = '\0';
+        //telnetClient[i].print(loginString);
+        //telnetClient[i].print('\n');
+        
         telnetClient[i].print("password: ");
         telnetClient[i].flush();
         while (telnetClient[i].available()) telnetClient[i].read();
         inChar = 0;
-        while ( (telnetClient[i].connected()) && (inChar != '\n') && (pass_buffer_pos < 32) )
+        while ( (telnetClient[i].connected()) && (inChar != '\n') && (inChar != '\r') && (pass_buffer_pos < 32) )
         {
           if (telnetClient[i].available())
           {
@@ -221,9 +225,11 @@ void telnetCheckClients()
             pass_buffer_pos++;
           }
         }
-        passString[pass_buffer_pos - 2] = 0;
+        passString[pass_buffer_pos-1] = '\0';
+        //telnetClient[i].print(passString);
+        //telnetClient[i].print('\n');
 
-        if ( strcmp(loginString, telnet_login) || strcmp(passString, telnet_pass))
+        if ( strcmp(loginString, telnet_login) || strcmp(passString, telnet_pass) )
         {
           telnetClient[i].println("Login or password incorrect");
           telnetClient[i].println("Connection terminating...");
