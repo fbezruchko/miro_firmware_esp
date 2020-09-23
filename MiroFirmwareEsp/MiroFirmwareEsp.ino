@@ -1,17 +1,12 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 #include <EEPROM.h>
 #include "Configuration.h"
-#include <algorithm>
 
-#include "utility/wifi_utils.h"
 #include "config.h"
 
 #include <FS.h>
 #include <ArduinoJson.h>
-#include <Hash.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 
@@ -19,15 +14,19 @@ int ledState = LOW;             // used to set the LED state
 long previousMillis = 0;        // will store last time LED was updated
 long ap_interval = 50;         //blink interval in ap mode
 IPAddress default_IP(192, 168, 240, 1); //defaul IP Address
-String HOSTNAME = DEF_HOSTNAME;
+
+String MAC = WiFi.macAddress();
+String HOSTNAME = String(DEF_HOSTNAME) + String(MAC[13]) + String(MAC[15]) + String(MAC[16]);
 String staticIP_param;
 String netmask_param;
 String gateway_param;
 String dhcp = "on";
 
 #define MAX_TELNET_CLIENTS 1
-char telnet_login[] = "miro";
-char telnet_pass[] = "robot";
+#if defined(SECURE_TELNET)
+char telnet_login[] = LOGIN;
+char telnet_pass[] = PASSWORD;
+#endif
 bool telnet_active[MAX_TELNET_CLIENTS];
 
 WiFiServer telnet(23);
@@ -41,7 +40,7 @@ void read_EEPROM_PWD(char *pass)
   unsigned char i, str_len = 0;
   str_len = EEPROM.read(addr);
   addr++;
-  for (i = 0; i < str_len; i++) *(pass + i) = EEPROM.read(addr+i);
+  for (i = 0; i < str_len; i++) *(pass + i) = EEPROM.read(addr + i);
   *(pass + i) = '\0';
 }
 
@@ -52,33 +51,31 @@ void write_EEPROM_PWD(char *pass)
   str_len = (unsigned char)strlen(pass);
   EEPROM.write(addr, str_len);
   addr++;
-  for (i = 0; i < str_len; i++) EEPROM.write(addr+i, *(pass + i));
+  for (i = 0; i < str_len; i++) EEPROM.write(addr + i, *(pass + i));
 }
 
 void setup() {
-
-  _setup_dfu();
   pinMode(WIFI_LED, OUTPUT);      //initialize wifi LED
   digitalWrite(WIFI_LED, LOW);
-
-  ArduinoOTA.begin();
-  //OTA ESP
-  initMDNS();
 
   pinMode(3, INPUT_PULLUP);
   pinMode(15, OUTPUT);
   digitalWrite(15, HIGH);
-  //pinMode(3, INPUT);
+
   Serial.begin(BAUDRATE_COMMUNICATION);
   Serial.setRxBufferSize(RXBUFFERSIZE);
   while (!Serial);
+
+  _setup_dfu();
 
   SPIFFS.begin();
   initHostname();
   setWiFiConfig();
 
+  initMDNS();
+
   httpUpdater.setup(&server);
-  initWebServer();                 //UI begin
+  initWebServer();
 
   //start telnet server
   telnet.begin();
@@ -86,7 +83,7 @@ void setup() {
 }
 
 void loop() {
-  ArduinoOTA.handle();
+  MDNS.update();
   handleWebServer();
   wifiLed();
   _handle_Mcu_OTA();
@@ -96,12 +93,15 @@ void loop() {
 }
 
 void initMDNS() {
-
-  MDNS.begin(HOSTNAME.c_str());
+  MDNS.begin(HOSTNAME.c_str(), WiFi.localIP());
   MDNS.setInstanceName(HOSTNAME);
-  MDNS.addServiceTxt("miro", "tcp", "fw_name", FW_NAME);
-  MDNS.addServiceTxt("miro", "tcp", "fw_version", FW_VERSION);
-
+  MDNS.addService(HOSTNAME, "tcp", 8266);
+  MDNS.addServiceTxt(HOSTNAME, "tcp", "tcp_check", "no");
+  MDNS.addServiceTxt(HOSTNAME, "tcp", "ssh_upload", "no");
+  MDNS.addServiceTxt(HOSTNAME, "tcp", "board", "miro_pcb_v1.0");
+  MDNS.addServiceTxt(HOSTNAME, "tcp", "auth_upload", "no");
+  MDNS.addServiceTxt(HOSTNAME, "tcp", "fw_name", FW_NAME);
+  MDNS.addServiceTxt(HOSTNAME, "tcp", "fw_version", FW_VERSION);
 }
 
 void initHostname() {
@@ -110,7 +110,6 @@ void initHostname() {
   if ( tmpHostname != "" )
     HOSTNAME = tmpHostname;
   WiFi.hostname(HOSTNAME);
-
 }
 
 void wifiLed() {
@@ -151,8 +150,7 @@ void setWiFiConfig() {
   if (WiFi.getMode() != WIFI_STA)
   {
     //set default AP
-    String mac = WiFi.macAddress();
-    String apSSID = String(SSIDNAME) + "-" + String(mac[9]) + String(mac[10]) + String(mac[12]) + String(mac[13]) + String(mac[15]) + String(mac[16]);
+    String apSSID = String(SSIDNAME) + "-" + String(MAC[9]) + String(MAC[10]) + String(MAC[12]) + String(MAC[13]) + String(MAC[15]) + String(MAC[16]);
     //char softApssid[18];
     //apSSID.toCharArray(softApssid, apSSID.length() + 1);
     ////delay(1000);
@@ -191,9 +189,10 @@ void telnetCheckClients()
       if (!telnetClient[i])
       {
         telnetClient[i] = telnet.available();
+        char inChar = 0;
+#if defined(SECURE_TELNET)
         char loginString[32];
         char passString[32];
-        char inChar = 0;
         unsigned char login_buffer_pos = 0;
         unsigned char pass_buffer_pos = 0;
         telnetClient[i].print("login: ");
@@ -208,10 +207,10 @@ void telnetCheckClients()
             login_buffer_pos++;
           }
         }
-        loginString[login_buffer_pos-1] = '\0';
+        loginString[login_buffer_pos - 1] = '\0';
         //telnetClient[i].print(loginString);
         //telnetClient[i].print('\n');
-        
+
         telnetClient[i].print("password: ");
         telnetClient[i].flush();
         while (telnetClient[i].available()) telnetClient[i].read();
@@ -225,7 +224,7 @@ void telnetCheckClients()
             pass_buffer_pos++;
           }
         }
-        passString[pass_buffer_pos-1] = '\0';
+        passString[pass_buffer_pos - 1] = '\0';
         //telnetClient[i].print(passString);
         //telnetClient[i].print('\n');
 
@@ -238,13 +237,11 @@ void telnetCheckClients()
           telnetClient[i].stop();
           return;
         }
-        else
-        {
-          telnet_active[i] = true;
-          //telnetClient[i].print('\r');
-          //telnetClient[i].print('\r');
-          //telnetClient[i].print('\r');
-        }
+#endif
+        telnet_active[i] = true;
+        //telnetClient[i].print('\r');
+        //telnetClient[i].print('\r');
+        //telnetClient[i].print('\r');
 
         telnetClient[i].println("Enter 'help' for a list of built-in commands.");
         telnetClient[i].println();
