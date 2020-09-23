@@ -5,3 +5,5 @@ This is a fork of Arduino.org WiFi Link firmware by jandrassy (https://github.co
 The main improvement is integrated telnet bridge on port 23, which allows to debug arduino part over WiFi. But there is no OTA firmware upload to ESP8266.
 Also, by default, GPIO pin for Arduino Reset defined to GPIO2 (on ESP8266, pin D4 on Wemos-D1-mini).
 
+You need to install ESP8266 Arduino Core v2.6.0(!!! only this version is guaranteed to work completely). 
+
